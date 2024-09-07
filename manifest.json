@@ -4,6 +4,10 @@
   "version": "1.0",
   "description": "Scroll through the mess that is Jira comments",
   "permissions": [ "activeTab" ],
+  "icons": {
+    "48": "icon.png",
+    "128": "icon.png"
+  },
   "content_scripts": [
     {
       "matches": [ "*://*.atlassian.net/*" ],
