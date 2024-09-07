@@ -22,7 +22,17 @@
     background-color: #ddd;
     border-radius: 2.5px;
     overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 }
+
+    #jira-progress-bar.fade-in {
+        opacity: 1;
+    }
+
+    #jira-progress-bar.fade-out {
+        opacity: 0;
+    }
 
 #jira-progress-fill {
     width: 100%;

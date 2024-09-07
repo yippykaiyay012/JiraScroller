@@ -5,12 +5,16 @@
     let isFirstScroll = true;
     let messageCheckInterval = null;
     let progressBar = null;
+    let progressBarTimeout = null;
 
 
     const createButton = (text, onClick) => {
         const button = document.createElement('button');
         button.textContent = text;
-        button.addEventListener('click', onClick);
+        button.addEventListener('click', () => {
+            onClick();
+            showProgressBar();
+        });
         return button;
     };
 
@@ -198,6 +202,19 @@
         const progress = (currentMessageIndex + 1) / messages.length;
         const fillElement = progressBar.querySelector('#jira-progress-fill');
         fillElement.style.height = `${progress * 100}%`;
+    };
+
+    const showProgressBar = () => {
+        if (progressBar) {
+            clearTimeout(progressBarTimeout);
+            progressBar.classList.remove('fade-out');
+            progressBar.classList.add('fade-in');
+
+            progressBarTimeout = setTimeout(() => {
+                progressBar.classList.remove('fade-in');
+                progressBar.classList.add('fade-out');
+            }, 3000);
+        }
     };
 
     const startPollingForMessages = () => {
