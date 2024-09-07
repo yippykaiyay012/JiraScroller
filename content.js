@@ -4,6 +4,7 @@
     let scrollContainer = null;
     let isFirstScroll = true;
     let messageCheckInterval = null;
+    let progressBar = null;
 
 
     const createButton = (text, onClick) => {
@@ -22,6 +23,7 @@
         if (!scrollContainer) return;
 
         messages = Array.from(scrollContainer.querySelectorAll('.css-6d0gjp'));
+        updateProgressBar();
     };
 
     const checkAndClickLoadMoreButton = () => {
@@ -121,6 +123,8 @@
         } else {
             console.log(`No message found at index ${currentMessageIndex}`);
         }
+
+        updateProgressBar();
     };
 
 
@@ -131,6 +135,8 @@
             updateMessagesList();
             currentMessageIndex = messages.length - 1;
         }, 100);
+
+        updateProgressBar();
     };
 
     const scrollToTop = () => {
@@ -139,6 +145,8 @@
         scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
         currentMessageIndex = 0;
         isFirstScroll = true;
+
+        updateProgressBar();
     };
 
 
@@ -146,10 +154,24 @@
         // Create navigation container
         const navContainer = document.createElement('div');
         navContainer.id = 'jira-nav-container';
-        navContainer.appendChild(createButton('↑', () => scrollToMessage('up')));
-        navContainer.appendChild(createButton('↓', () => scrollToMessage('down')));
-        navContainer.appendChild(createButton('Top', scrollToTop));
-        navContainer.appendChild(createButton('Bottom', scrollToBottom));
+
+        // Create progress bar container
+        const progressBarContainer = document.createElement('div');
+        progressBarContainer.id = 'jira-progress-bar-container';
+        progressBarContainer.appendChild(createProgressBar());
+
+        // Create button container
+        const buttonContainer = document.createElement('div');
+        buttonContainer.id = 'jira-button-container';
+
+        buttonContainer.appendChild(createButton('↑', () => scrollToMessage('up')));
+        buttonContainer.appendChild(createButton('↓', () => scrollToMessage('down')));
+        buttonContainer.appendChild(createButton('Top', scrollToTop));
+        buttonContainer.appendChild(createButton('Bottom', scrollToBottom));
+
+        // Add progress bar and button containers to the navigation container
+        navContainer.appendChild(progressBarContainer);
+        navContainer.appendChild(buttonContainer);
 
         // Add navigation container to the page
         document.body.appendChild(navContainer);
@@ -160,6 +182,22 @@
         });
 
         observer.observe(document.body, { childList: true, subtree: true });
+    };
+
+    const createProgressBar = () => {
+        progressBar = document.createElement('div');
+        progressBar.id = 'jira-progress-bar';
+        const progressFill = document.createElement('div');
+        progressFill.id = 'jira-progress-fill';
+        progressBar.appendChild(progressFill);
+        return progressBar;
+    };
+
+    const updateProgressBar = () => {
+        if (!progressBar) return;
+        const progress = (currentMessageIndex + 1) / messages.length;
+        const fillElement = progressBar.querySelector('#jira-progress-fill');
+        fillElement.style.height = `${progress * 100}%`;
     };
 
     const startPollingForMessages = () => {
