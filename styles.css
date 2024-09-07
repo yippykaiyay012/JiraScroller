@@ -1,0 +1,42 @@
+﻿#jira-nav-container {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+    #jira-nav-container button {
+        margin: 5px;
+        padding: 10px;
+        background-color: #0052CC;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        #jira-nav-container button:hover {
+            background-color: #0065FF;
+        }
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 5px #4a90e2;
+    }
+
+    50% {
+        box-shadow: 0 0 20px #4a90e2;
+    }
+
+    100% {
+        box-shadow: 0 0 5px #4a90e2;
+    }
+}
+
+.message-glow {
+    animation: glow 2s ease-in-out;
+    border-radius: 4px;
+}

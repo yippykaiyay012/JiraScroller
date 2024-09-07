@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "JiraScroller",
+  "version": "1.0",
+  "description": "Scroll through the mess that is Jira comments",
+  "permissions": [ "activeTab" ],
+  "content_scripts": [
+    {
+      "matches": [ "*://*.atlassian.net/*" ],
+      "js": [ "content.js" ],
+      "css": [ "styles.css" ]
+    }
+  ]
+}
