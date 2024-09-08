@@ -6,6 +6,50 @@
     let messageCheckInterval = null;
     let progressBar = null;
     let progressBarTimeout = null;
+    let isEnabled = true;
+
+
+
+    const initializeNavigation = () => {
+        // Create navigation container
+        navContainer = document.createElement('div');
+        navContainer.id = 'jira-nav-container';
+        navContainer.style.display = 'none'; // Hide by default
+
+        // Create progress bar container
+        const progressBarContainer = document.createElement('div');
+        progressBarContainer.id = 'jira-progress-bar-container';
+        progressBarContainer.appendChild(createProgressBar());
+
+        // Create button container
+        const buttonContainer = document.createElement('div');
+        buttonContainer.id = 'jira-button-container';
+
+        buttonContainer.appendChild(createButton('↑', () => scrollToMessage('up')));
+        buttonContainer.appendChild(createButton('↓', () => scrollToMessage('down')));
+        buttonContainer.appendChild(createButton('Top', scrollToTop));
+        buttonContainer.appendChild(createButton('Bottom', scrollToBottom));
+
+        // Add progress bar and button containers to the navigation container
+        navContainer.appendChild(progressBarContainer);
+        navContainer.appendChild(buttonContainer);
+
+        // Add navigation container to the page
+        document.body.appendChild(navContainer);
+
+        // Check initial state
+        chrome.runtime.sendMessage({ action: 'getState' }, (response) => {
+            isEnabled = response.isEnabled;
+            updateUIVisibility();
+        });
+
+        // Add a MutationObserver to watch for changes in the DOM
+        const observer = new MutationObserver(() => {
+            updateMessagesList();
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    };
 
 
     const createButton = (text, onClick) => {
@@ -154,39 +198,12 @@
     };
 
 
-    const initializeNavigation = () => {
-        // Create navigation container
-        const navContainer = document.createElement('div');
-        navContainer.id = 'jira-nav-container';
-
-        // Create progress bar container
-        const progressBarContainer = document.createElement('div');
-        progressBarContainer.id = 'jira-progress-bar-container';
-        progressBarContainer.appendChild(createProgressBar());
-
-        // Create button container
-        const buttonContainer = document.createElement('div');
-        buttonContainer.id = 'jira-button-container';
-
-        buttonContainer.appendChild(createButton('↑', () => scrollToMessage('up')));
-        buttonContainer.appendChild(createButton('↓', () => scrollToMessage('down')));
-        buttonContainer.appendChild(createButton('Top', scrollToTop));
-        buttonContainer.appendChild(createButton('Bottom', scrollToBottom));
-
-        // Add progress bar and button containers to the navigation container
-        navContainer.appendChild(progressBarContainer);
-        navContainer.appendChild(buttonContainer);
-
-        // Add navigation container to the page
-        document.body.appendChild(navContainer);
-
-        // Add a MutationObserver to watch for changes in the DOM
-        const observer = new MutationObserver(() => {
-            updateMessagesList();
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
+    const updateUIVisibility = () => {
+        if (navContainer) {
+            navContainer.style.display = isEnabled ? 'flex' : 'none';
+        }
     };
+
 
     const createProgressBar = () => {
         progressBar = document.createElement('div');
@@ -218,14 +235,25 @@
     };
 
     const startPollingForMessages = () => {
-        messageCheckInterval = setInterval(() => {
-            updateMessagesList();
-            if (messages.length > 0) {
-                clearInterval(messageCheckInterval); // Stop checking when messages are found
-                initializeNavigation(); // Initialize the navigation buttons once messages are found
-            }
-        }, 2000); // Check every 2s
+        setTimeout(() => {
+            messageCheckInterval = setInterval(() => {
+                updateMessagesList();
+                if (messages.length > 0) {
+                    clearInterval(messageCheckInterval);
+                    initializeNavigation();
+                }
+            }, 2000);
+        }, 1000); // 1 second delay before starting to poll
     };
+
+
+    // Listen for messages from the background script
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request.action === 'toggleExtension') {
+            isEnabled = request.isEnabled;
+            updateUIVisibility();
+        }
+    });
 
     // Start polling for messages
     startPollingForMessages();

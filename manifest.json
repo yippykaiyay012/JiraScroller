@@ -3,10 +3,16 @@
   "name": "JiraScroller",
   "version": "1.0",
   "description": "Scroll through the mess that is Jira comments",
-  "permissions": [ "activeTab" ],
+  "permissions": [ "activeTab", "storage" ],
   "icons": {
     "48": "icon.png",
     "128": "icon.png"
+  },
+  "action": {
+    "default_icon": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
